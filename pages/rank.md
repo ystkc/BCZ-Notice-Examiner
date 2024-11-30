@@ -603,7 +603,10 @@ permalink: /rank
       var result = "";
       Object.keys(user_groups).forEach(group_id => {
         group = user_groups[group_id];
-        result += `[${group_id}] ${groups[group_id]} 满卡 ${group.group_max_streak} (${group.group_max_completed_times}/${group.group_max_duration_days})<br>`;
+        if (streakScreenCount > 0)
+          result += `${groups[group_id]} 满卡 ${group.group_max_streak} (${group.group_max_completed_times}/${group.group_max_duration_days})<br>`;
+        else
+          result += `[${group_id}] ${groups[group_id]} 满卡 ${group.group_max_streak} (${group.group_max_completed_times}/${group.group_max_duration_days})<br>`;
       });
       return result;
     }
