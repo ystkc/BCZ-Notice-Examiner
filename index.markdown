@@ -17,7 +17,9 @@ Created by 半只橙 & Cereanilla麦花<br>
 
 
 <textarea id="notice-input" placeholder="Paste your BCZ notice here..." style="width: 80%; height: 300px;"></textarea><br>
+<br>
 <button id="search-btn" onclick="check_notice()">Check</button>
+<br>
 <input checked type="checkbox" id="enhanced-check">加强词典
 <div id="matches"></div>
 <div id="warn"><span style="color:red;" id="warn">本工具与百词斩官方无关，违禁词为用户收集，结果仅供参考</span><br>若仍然找不到违禁词，请将你的公告【全文】发送到1612162886@qq.com</div><br>
