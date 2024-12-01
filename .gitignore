@@ -16,6 +16,7 @@ assets/accept_words.json
 assets/bad_words.json
 assets/warn_words.json
 assets/member_info_top_rate.bin.zip
+assets/js/member_info_top_rate.js
 assets/member/old/
 assets/member_name/old/
 *.csv
