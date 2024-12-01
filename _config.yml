@@ -62,7 +62,6 @@ exclude:
   - "*.py"
   - "*.xlsx"
   - "*.csv"
-  - assets/js/rank.js
   - blacklist_rating.json
   - patterns copy.json
   - patterns.json

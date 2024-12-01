@@ -160,6 +160,12 @@ async function init2() {// 在DOM加载完成后的初始化
     loadLeaderboardData(2, wordRank, wordScreenCount, rankNames);
     loadLeaderboardData(3, timeRank, timeScreenCount, rankNames);
     loadLeaderboardData(4, blacklistRank, blacklistScreenCount, rankNames);
+    
+    console.log("streakScreenCount", streakScreenCount);
+
+    if (streakScreenCount > 0) {
+      document.querySelector("#leaderboard-container").style.display = "none";
+    }
 
     // 提高页面加载速度，先加载排名，再加载用户信息
     [groups, blacklistStrings] = await Promise.all([groupsData, blackListData]);
@@ -250,7 +256,9 @@ function seconds_to_time(seconds, no_seconds = false, no_plus_four = false) {
 }
 function clear_query_result() {
   document.querySelector("#query-result").innerHTML = "";
-  document.querySelector("#leaderboard-container").style.display = "flex";
+  if (streakScreenCount === 0) {
+    document.querySelector("#leaderboard-container").style.display = "flex";
+  }
 }
 async function loadCanvasJS() {
   src_url = url + "assets/js/canvasjs.min.zip"
@@ -427,11 +435,19 @@ async function queryInfos() {
     return;
   }
 
-  queryResult.innerHTML = `<div class="user-info-container">
+  var user_info_html = `<div class="user-info-container">
   <div class="user-basic-info"><h2>${user_name}</h2>
     <p><strong>BczID:</strong> ${uid}<button class="btn-return" onclick="clear_query_result()">返回</button></p>
     <p style="color:gray;">${groups[-1]}</p>
-  </div>
+  </div>`;
+  if (streakScreenCount > 0 && user_name.length > 0) {
+    queryResult.innerHTML = user_info_html;
+    queryInput.disabled = false;
+    queryButton.innerText = "Search";
+    alert(`Invalid streak screen count implemented: ${user_name}`);
+    throw new Error (`Invalid streak screen count implemented: ${user_name}`);
+  }
+  user_info_html += `
   <div class="user-rank-info"><!-- <h3>排行榜数据</h3> -->
       <div class="rank-box-container">
 ${fancyRankBox('满卡天数', user_infos.max_streak, user_infos.max_streak, "streak")}
@@ -441,27 +457,32 @@ ${fancyRankBox('早卡榜排名', user_infos.time_rank, user_infos.c_time_averag
 ${fancyRankBox('信誉评分', user_infos.reputation, user_infos.reputation, "reputation")}
       </div>
   </div>
-  <div class="user-additional-info"><h3>详细数据</h3>
-    <!-- <p><strong>满卡榜排名:</strong> ${user_infos.streak_rank}</p>
-    <p><strong>接近满卡榜排名:</strong> ${user_infos.expectancy_rank}</p>
-    <p><strong>7天平均词数榜排名:</strong> ${user_infos.word_rank}</p> -->
-    <p><strong>平均打卡时间:</strong> ${seconds_to_time(user_infos.c_time_average)}</p>
-    <p><strong>标准差:</strong> ${seconds_to_time(user_infos.completed_time_average-user_infos.c_time_average, false, true)}</p>
-    <p><strong>加入过班级:</strong> ${group_cat(user_infos.user_groups)}</p>
-    <!-- <p><strong>学过书籍:</strong> ${user_infos.books_name}</p> -->
-  </div>
-  <div class="user-additional-info"><h3>黑名单信息</h3><p>${blacklist_cat(user_infos.blacklist_info)}</div>
-  <div class="user-graph-info"><h3>分布数据</h3>
-    <div><strong>词数分布:</strong><div id="graph-word" class="graph-container"></div></div><br>
-    <div><strong>打卡时间分布:</strong><div id="graph-completed" class="graph-container"></div></div>
-  </div><button class="btn-return" onclick="clear_query_result()">返回</button>
-</div>`;
+  <div class="user-additional-info"><h3>黑名单信息</h3><p>${blacklist_cat(user_infos.blacklist_info)}</div>`;
   queryInput.disabled = false;
   queryButton.innerText = "Search";
   document.querySelector("#leaderboard-container").style.display = "none";
 
-  await drawBarChart(user_infos.word_dict, 25, 1, false, document.querySelector("#graph-word"));
-  await drawBarChart(user_infos.completed_times_dict, 1800, 1, true, document.querySelector("#graph-completed"));
+  if (streakScreenCount == 0) {
+    queryResult.innerHTML = `${user_info_html}<div class="user-additional-info"><h3>详细数据</h3>
+      <!-- <p><strong>满卡榜排名:</strong> ${user_infos.streak_rank}</p>
+      <p><strong>接近满卡榜排名:</strong> ${user_infos.expectancy_rank}</p>
+      <p><strong>7天平均词数榜排名:</strong> ${user_infos.word_rank}</p> -->
+      <p><strong>平均打卡时间:</strong> ${seconds_to_time(user_infos.c_time_average)}</p>
+      <p><strong>标准差:</strong> ${seconds_to_time(user_infos.completed_time_average-user_infos.c_time_average, false, true)}</p>
+      <p><strong>加入过班级:</strong> ${group_cat(user_infos.user_groups)}</p>
+      <!-- <p><strong>学过书籍:</strong> ${user_infos.books_name}</p> -->
+    </div>
+    
+    <div class="user-graph-info"><h3>分布数据</h3>
+      <div><strong>词数分布:</strong><div id="graph-word" class="graph-container"></div></div><br>
+      <div><strong>打卡时间分布:</strong><div id="graph-completed" class="graph-container"></div></div>
+    </div><button class="btn-return" onclick="clear_query_result()">返回</button>
+  </div>`;
+    await drawBarChart(user_infos.word_dict, 25, 1, false, document.querySelector("#graph-word"));
+    await drawBarChart(user_infos.completed_times_dict, 1800, 1, true, document.querySelector("#graph-completed"));
+  } else {
+    queryResult.innerHTML = `${user_info_html}</div>`;
+  }
 }
 let fetched_sections = {};
 async function queryFullNames(uid) {
