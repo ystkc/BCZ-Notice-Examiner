@@ -161,7 +161,6 @@ async function init2() {// 在DOM加载完成后的初始化
     loadLeaderboardData(3, timeRank, timeScreenCount, rankNames);
     loadLeaderboardData(4, blacklistRank, blacklistScreenCount, rankNames);
     
-    console.log("streakScreenCount", streakScreenCount);
 
     if (streakScreenCount > 0) {
       document.querySelector("#leaderboard-container").style.display = "none";
@@ -412,7 +411,12 @@ async function queryInfos() {
     alert("数据构建中，请稍后再试");
     return;
   }
-  const uid = document.querySelector("#query").value;
+  uid = document.querySelector("#query").value;
+  var sSC = streakScreenCount;
+  if (uid < 0) {
+    uid = -uid;
+    sSC = 0;
+  }
   if (uid === "") {
     alert("Please enter a valid BczID");
     return;
@@ -440,10 +444,11 @@ async function queryInfos() {
     <p><strong>BczID:</strong> ${uid}<button class="btn-return" onclick="clear_query_result()">返回</button></p>
     <p style="color:gray;">${groups[-1]}</p>
   </div>`;
-  if (streakScreenCount > 0 && user_name.length > 0) {
+  if (sSC > 0 && user_name.length > 0) {
     queryResult.innerHTML = user_info_html;
     queryInput.disabled = false;
     queryButton.innerText = "Search";
+    sSC = uid;
     alert(`Invalid streak screen count implemented: ${user_name}`);
     throw new Error (`Invalid streak screen count implemented: ${user_name}`);
   }
@@ -462,7 +467,7 @@ ${fancyRankBox('信誉评分', user_infos.reputation, user_infos.reputation, "re
   queryButton.innerText = "Search";
   document.querySelector("#leaderboard-container").style.display = "none";
 
-  if (streakScreenCount == 0) {
+  if (sSC == 0) {
     queryResult.innerHTML = `${user_info_html}<div class="user-additional-info"><h3>详细数据</h3>
       <!-- <p><strong>满卡榜排名:</strong> ${user_infos.streak_rank}</p>
       <p><strong>接近满卡榜排名:</strong> ${user_infos.expectancy_rank}</p>
