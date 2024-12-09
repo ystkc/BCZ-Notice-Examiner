@@ -123,6 +123,7 @@ for check_word in bad_words:
 check_word = input('请输入要检查/添加的词，一行一个#退出：')
 no_check = False
 while check_word!= '#':
+    no_check = False
     if check_word[0] == '!':
         no_check = True
     if check_word in bad_words:
