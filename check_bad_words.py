@@ -69,7 +69,7 @@ replace_dict = {
     '〇': '0'
 }
 def cbw(check_word, accept_notice):
-    if check_word[0] == '!':
+    if check_word[0] == '!' or check_word[0] == '?':
         check_word = check_word[1:]
     if check_word in accept_notice:
         result = max(accept_notice.index(check_word) - 10, 0)
@@ -120,12 +120,21 @@ for check_word in bad_words:
         else:
             print(f"黑名单【保留】：{check_word[1:]}")
 
-check_word = input('请输入要检查/添加的词，一行一个#退出：')
+check_word = input('请输入要检查/添加的词，一行一个!强制?取消强制#退出：')
 no_check = False
 while check_word!= '#':
     no_check = False
     if check_word[0] == '!':
         no_check = True
+    if check_word[0] == '?':
+        check_word = check_word[1:]
+        for i in range(len(bad_words)):
+            if bad_words[i][0] == '!' and bad_words[i][1:] == check_word:
+                print(f'{check_word} \033[32m已取消强制\033[0m')
+                bad_words[i] = check_word
+                break
+        else:
+            print(f'{check_word} \033[31m不存在\033[0m')
     if check_word in bad_words:
         print(f'{check_word} \033[32m已存在于黑名单中\033[0m')
     else:

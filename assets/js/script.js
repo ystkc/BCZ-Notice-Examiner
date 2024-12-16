@@ -163,7 +163,7 @@ function check_notice() {
     function sliceInvalidChar(text) {
       // const invalidChars = [',', '.', '!', '?', ':', ';', '，', '。', '！', '？', '：', '；','\n',' ','/','"',"'",'、','‘','’','“','”','(',')','（','）','~','*','@','～','【','】','《','》','[',']','%','％']
       const pattern =
-        /[^\w\d\u4e00-\u9fa5\u{1F601}-\u{1F64F}\u{2702}-\u{27B0}\u{1F170}-\u{1F251}\u{1F600}-\u{1F636}\u{1F680}-\u{1F6C5}\u{1F30D}-\u{1F567}]/u;
+        /[^\w\d\u4e00-\u9fa5\u2700-\u27bf\u{1F650}-\u{1F67F}\u{1F600}-\u{1F64F}\u2600-\u26FF\u{1F300}-\u{1F5FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{1F680}-\u{1F6FF}\u{1F100}-\u{1F1FF}\u{1F200}-\u{1F2FF}]/u;
 
       const replaceMap = {
         一: "1",
@@ -193,19 +193,22 @@ function check_notice() {
       let newText = "";
       let i = 0; // 使用 index 变量来遍历文本
 
+      var char = "",
+        doubleChar = false;
       while (i < text.length) {
-        const char = text[i];
         // 使用 codePointAt 检查字符是否是 emoji
-        const codePoint = char.codePointAt(0);
-        if (codePoint > 0xffff) {
-          // 如果是 emoji，直接添加到 newText
-          newText += char;
-          position++;
-          i += 2; // emoji 通常占用两个字符
-        } else if (char.match(pattern)) {
+        if (text.codePointAt(i) > 0xffff) {
+          doubleChar = true;
+          char = text[i] + text[i + 1];
+        } else {
+          doubleChar = false;
+          char = text[i];
+        }
+        if (char.match(pattern)) {
           // 如果被正则表达式匹配，则执行
           setInvalidStorage(invalidStorage, position, char);
           i++; // 继续检查下一个字符
+          if (doubleChar) position --; // 双字符的一点小问题
         } else if (char in replaceMap) {
           newText += replaceMap[char];
           setInvalidStorage(invalidStorage, position, char);
@@ -221,7 +224,13 @@ function check_notice() {
           position++;
           i++; // 继续检查下一个字符
         }
+        if (doubleChar) {
+          i++;
+          position++;
+        }
       }
+      // console.log(newText);
+      // console.log(invalidStorage);
       return [newText, invalidStorage];
     }
 
@@ -230,6 +239,7 @@ function check_notice() {
       let accept = false;
       let warn = false;
       let enhance = false;
+      var doubleChar = false;
       let newText = "";
       var temp_text = "";
       const replaceList = [
@@ -256,8 +266,18 @@ function check_notice() {
         "〇",
       ];
       text += " ";
-      for (let position = 0; position < text.length; position++) {
-        temp_text = text[position];
+      for (
+        var textPosition = 0, position = 0;
+        textPosition < text.length;
+        position++, textPosition++
+      ) {
+        if (text.codePointAt(textPosition) > 0xffff) {
+          doubleChar = true;
+          temp_text = text[textPosition] + text[textPosition + 1];
+        } else {
+          doubleChar = false;
+          temp_text = text[textPosition];
+        }
 
         if (position in invalidStorage) {
           // 先统计出现2的次数
@@ -354,6 +374,10 @@ function check_notice() {
           enhance = false;
         }
         newText += temp_text;
+        if (doubleChar) {
+          textPosition++;
+          position++;
+        }
       }
 
       return newText;
