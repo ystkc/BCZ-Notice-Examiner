@@ -62,6 +62,7 @@ exclude:
   - "*.py"
   - "*.xlsx"
   - "*.csv"
+  - "*.rar" # For archives. Assets should be in zip files.
   - blacklist_rating.json
   - patterns copy.json
   - patterns.json
